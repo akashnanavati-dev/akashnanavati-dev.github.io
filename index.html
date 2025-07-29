@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akash Nanavati's Terminal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles and Variables */
+        .mongodb-icon {
+            color: #4DB33D;
+        }
+
+        :root {
+            --terminal-bg: #000;
+            --terminal-text: #0f0;
+            --terminal-glow: 0 0 10px rgba(0, 255, 0, 0.7);
+            --terminal-header-bg: #333;
+            --terminal-font: 'VT323', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--terminal-font);
+            background-color: #111;
+            color: var(--terminal-text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Terminal Container Styling */
+        .terminal-container {
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            background-color: var(--terminal-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Terminal Header Styling */
+        .terminal-header {
+            background-color: var(--terminal-header-bg);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .close {
+            background-color: #ff5f56;
+        }
+
+        .minimize {
+            background-color: #ffbd2e;
+        }
+
+        .maximize {
+            background-color: #27c93f;
+        }
+
+        .terminal-title {
+            color: #ddd;
+            font-size: 14px;
+        }
+
+        /* Terminal Content Area */
+        .terminal {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Scrollbar Styling */
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        /* ASCII Art Header */
+        .ascii-header {
+            font-family: monospace;
+            white-space: pre;
+            color: var(--terminal-text);
+            text-shadow: var(--terminal-glow);
+            margin-bottom: 20px;
+            font-size: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            }
+
+            50% {
+                text-shadow: 0 0 20px rgba(0, 255, 0, 0.9);
+            }
+
+            100% {
+                text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+            }
+        }
+
+        /* Terminal Output Text */
+        .terminal-output {
+            flex: 1;
+            margin-bottom: 15px;
+            overflow-y: auto;
+        }
+
+        .terminal-output p {
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 18px;
+        }
+
+        /* Terminal Input Line */
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .terminal-prompt {
+            color: var(--terminal-text);
+            margin-right: 8px;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: var(--terminal-text);
+            font-family: var(--terminal-font);
+            font-size: 18px;
+            flex: 1;
+            caret-color: transparent;
+            outline: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Blinking Cursor Animation */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: var(--terminal-text);
+            position: absolute;
+            left: 0;
+            animation: blink 1s step-end infinite;
+            z-index: 0;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Tech Stack Marquee */
+        .tech-stack-marquee {
+            width: 90%;
+            max-width: 900px;
+            background-color: #111;
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+            padding: 10px 0;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .marquee-content {
+            display: flex;
+            animation: scroll 20s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .tech-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 30px;
+            color: var(--terminal-text);
+        }
+
+        .tech-icon i {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            width: 100%;
+            margin: 5px 0 15px 0;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #111;
+            border: 1px solid var(--terminal-text);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--terminal-text);
+            box-shadow: 0 0 8px var(--terminal-text);
+            animation: progressAnimation 1s ease-out;
+        }
+
+        @keyframes progressAnimation {
+            from {
+                width: 0;
+            }
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            mix-blend-mode: difference;
+        }
+
+        /* Projects List */
+        .project-item {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-left: 3px solid var(--terminal-text);
+            padding-left: 10px;
+        }
+
+        .project-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        /* Modal Dialogs */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--terminal-bg);
+            border: 2px solid var(--terminal-text);
+            box-shadow: 0 0 15px var(--terminal-text);
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .close-modal {
+            color: var(--terminal-text);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* Matrix Rain Effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        /* Mobile Command Buttons */
+        .mobile-commands {
+            display: none;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        .command-button {
+            background-color: #333;
+            color: var(--terminal-text);
+            border: 1px solid var(--terminal-text);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: var(--terminal-font);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .command-button:hover {
+            background-color: #444;
+            box-shadow: 0 0 8px var(--terminal-text);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .terminal-container {
+                width: 95%;
+                height: 85vh;
+            }
+
+            .ascii-header {
+                font-size: 8px;
+            }
+
+            .terminal-output p,
+            .terminal-input-line,
+            #terminal-input {
+                font-size: 16px;
+            }
+
+            .tech-icon i {
+                font-size: 24px;
+            }
+
+            .mobile-commands {
+                display: flex;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .glitch {
+            animation: glitch 0.3s linear 3;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-5px, 5px);
+            }
+
+            40% {
+                transform: translate(-5px, -5px);
+            }
+
+            60% {
+                transform: translate(5px, 5px);
+            }
+
+            80% {
+                transform: translate(5px, -5px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        .access-denied {
+            color: #f00;
+            font-weight: bold;
+            animation: shake 0.5s linear;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .git-log {
+            font-family: monospace;
+            margin-left: 15px;
+        }
+
+        .git-hash {
+            color: #f39c12;
+            margin-right: 10px;
+        }
+
+        .network-response {
+            font-family: monospace;
+        }
+
+        .ping-time {
+            color: #3498db;
+        }
+
+        .ping-success {
+            color: #2ecc71;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <div class="terminal-button close"></div>
+                <div class="terminal-button minimize"></div>
+                <div class="terminal-button maximize"></div>
+            </div>
+            <div class="terminal-title">terminal@akash:~</div>
+        </div>
+        <div class="terminal">
+            <div class="ascii-header" id="ascii-header"></div>
+            <div class="terminal-output" id="terminal-output">
+                <p>Welcome to Akash Nanavati's Terminal v1.0.0</p>
+                <p>Type 'help' to see available commands</p>
+            </div>
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">user@akash:~$</span>
+                <input type="text" id="terminal-input" autofocus>
+                <span class="cursor"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tech-stack-marquee">
+        <div class="marquee-content">
+            <div class="tech-icon">
+                <i class="fab fa-react"></i>
+                <span>React</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-node-js"></i>
+                <span>Node.js</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-python"></i>
+                <span>Python</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-docker"></i>
+                <span>Docker</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-js"></i>
+                <span>JavaScript</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-html5"></i>
+                <span>HTML5</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-css3-alt"></i>
+                <span>CSS3</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fab fa-git-alt"></i>
+                <span>Git</span>
+            </div>
+            <div class="tech-icon">
+                <i class="fas fa-database mongodb-icon"></i>
+                <span>MongoDB</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="easter-egg-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="easter-egg-content"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const terminalOutput = document.getElementById('terminal-output');
+            const terminalInput = document.getElementById('terminal-input');
+            const asciiHeader = document.getElementById('ascii-header');
+            const easterEggModal = document.getElementById('easter-egg-modal');
+            const easterEggContent = document.getElementById('easter-egg-content');
+            const closeModal = document.querySelector('.close-modal');
+            const cursor = document.querySelector('.cursor');
+            const terminalPrompt = document.querySelector('.terminal-prompt');
+
+            const akashAscii = `
+     █████╗ ██╗  ██╗ █████╗ ███████╗██╗  ██╗    ███╗   ██╗ █████╗ ███╗   ██╗ █████╗ ██╗   ██╗ █████╗ ████████╗██╗
+    ██╔══██╗██║ ██╔╝██╔══██╗██╔════╝██║  ██║    ████╗  ██║██╔══██╗████╗  ██║██╔══██╗██║   ██║██╔══██╗╚══██╔══╝██║
+    ███████║█████╔╝ ███████║███████╗███████║    ██╔██╗ ██║███████║██╔██╗ ██║███████║██║   ██║███████║   ██║   ██║
+    ██╔══██║██╔═██╗ ██╔══██║╚════██║██╔══██║    ██║╚██╗██║██╔══██║██║╚██╗██║██╔══██║╚██╗ ██╔╝██╔══██║   ██║   ██║
+    ██║  ██║██║  ██╗██║  ██║███████║██║  ██║    ██║ ╚████║██║  ██║██║ ╚████║██║  ██║ ╚████╔╝ ██║  ██║   ██║   ██║
+    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝  ╚═══╝  ╚═╝  ╚═╝   ╚═╝   ╚═╝
+                                                                                                                   
+            `;
+
+            function displayAsciiArt() {
+                asciiHeader.textContent = akashAscii;
+            }
+
+            function initTerminal() {
+                displayAsciiArt();
+                terminalInput.focus();
+                updateCursorPosition();
+
+                terminalInput.addEventListener('input', updateCursorPosition);
+                terminalInput.addEventListener('keydown', function (e) {
+                    setTimeout(updateCursorPosition, 10);
+                });
+
+                if (window.innerWidth <= 768) {
+                    createMobileCommandButtons();
+                }
+
+                createMatrixBackground();
+            }
+
+            function updateCursorPosition() {
+                const promptWidth = terminalPrompt.getBoundingClientRect().width;
+                const textWidth = getTextWidth(terminalInput.value);
+                cursor.style.left = (promptWidth + textWidth + 8) + 'px';
+            }
+
+            function getTextWidth(text) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                context.font = getComputedStyle(terminalInput).font;
+                return context.measureText(text).width;
+            }
+
+            function createMobileCommandButtons() {
+                const commands = ['help', 'about', 'projects', 'skills', './run --profile', 'cat skills.txt', 'ls projects/', 'git log --oneline'];
+                const mobileCommands = document.createElement('div');
+                mobileCommands.className = 'mobile-commands';
+
+                commands.forEach(cmd => {
+                    const button = document.createElement('button');
+                    button.className = 'command-button';
+                    button.textContent = cmd;
+                    button.addEventListener('click', () => {
+                        terminalInput.value = cmd;
+                        processCommand();
+                    });
+                    mobileCommands.appendChild(button);
+                });
+
+                terminalOutput.parentNode.insertBefore(mobileCommands, terminalOutput.nextSibling);
+            }
+
+            function createMatrixBackground() {
+                const canvas = document.createElement('canvas');
+                canvas.className = 'matrix-bg';
+                document.body.appendChild(canvas);
+
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const characters = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+                const columns = canvas.width / 20;
+                const drops = [];
+
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = 1;
+                }
+
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.fillStyle = '#0f0';
+                    ctx.font = '15px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                        ctx.fillText(text, i * 20, drops[i] * 20);
+
+                        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrix, 50);
+            }
+
+            function typeWriter(element, text, speed = 30) {
+                let i = 0;
+                element.textContent = '';
+
+                function type() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+
+                type();
+                return new Promise(resolve => setTimeout(resolve, text.length * speed + 100));
+            }
+
+            function addOutput(text, className = '') {
+                const output = document.createElement('p');
+                if (className) output.className = className;
+                terminalOutput.appendChild(output);
+
+                typeWriter(output, text).then(() => {
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                });
+            }
+
+            function processCommand() {
+                const command = terminalInput.value.trim();
+                if (!command) return;
+
+                addOutput(`user@akash:~$ ${command}`);
+                handleCommand(command);
+                terminalInput.value = '';
+                updateCursorPosition();
+                terminalOutput.scrollTop = terminalOutput.scrollHeight;
+            }
+
+            function handleCommand(command) {
+                switch (command.toLowerCase()) {
+                    case 'help':
+                        showHelp();
+                        break;
+                    case 'about':
+                        showAbout();
+                        break;
+                    case 'projects':
+                    case 'ls projects/':
+                        showProjects();
+                        break;
+                    case 'skills':
+                    case 'cat skills.txt':
+                        showSkills();
+                        break;
+                    case './run --profile':
+                        showProfile();
+                        break;
+                    case 'git log --oneline':
+                        showGitLog();
+                        break;
+                    case 'clear':
+                        clearTerminal();
+                        break;
+                    case 'sudo rm -rf /':
+                        showAccessDenied();
+                        break;
+                    case 'ping google.com':
+                        showPingResponse();
+                        break;
+                    case 'whoami':
+                        showWhoami();
+                        break;
+                    case 'exit':
+                    case 'quit':
+                        addOutput('Cannot exit: You are trapped in the matrix...');
+                        break;
+                    case 'matrix':
+                        showMatrixEasterEgg();
+                        break;
+                    default:
+                        addOutput(`Command not found: ${command}. Type 'help' for available commands.`);
+                }
+            }
+
+            function showHelp() {
+                addOutput('Available commands:');
+                addOutput('  help         - Show this help message');
+                addOutput('  about        - About Akash Nanavati');
+                addOutput('  projects     - View projects');
+                addOutput('  skills       - View skills');
+                addOutput('  ./run --profile - Show profile information');
+                addOutput('  ls projects/ - List projects');
+                addOutput('  git log --oneline - Show commit history');
+                addOutput('  clear        - Clear terminal');
+                addOutput('  whoami       - Who are you?');
+                addOutput('  ping google.com - Test network connection');
+                addOutput('  exit, quit   - Exit terminal (or try to)');
+            }
+
+            function showAbout() {
+                addOutput('About Akash Nanavati:');
+                addOutput('Akash Nanavati is a full-stack developer with a passion for creating');
+                addOutput('innovative solutions and clean, efficient code. With expertise');
+                addOutput('in multiple programming languages and frameworks, Akash');
+                addOutput('specializes in building responsive web applications, RESTful APIs,');
+                addOutput('and scalable backend systems.');
+            }
+
+            function showProjects() {
+                addOutput('Projects:');
+
+                const projects = [
+                    {
+                        name: 'E-Commerce Platform',
+                        description: 'Full-stack e-commerce solution with React, Node.js, and MongoDB'
+                    },
+                    {
+                        name: 'AI Chat Assistant',
+                        description: 'Intelligent chatbot using NLP and machine learning algorithms'
+                    },
+                    {
+                        name: 'Crypto Tracker',
+                        description: 'Real-time cryptocurrency tracking dashboard with data visualization'
+                    },
+                    {
+                        name: 'Task Management API',
+                        description: 'RESTful API for task management with authentication and authorization'
+                    }
+                ];
+
+                projects.forEach(project => {
+                    const projectElement = document.createElement('div');
+                    projectElement.className = 'project-item fade-in';
+
+                    const title = document.createElement('div');
+                    title.className = 'project-title';
+                    title.textContent = project.name;
+
+                    const description = document.createElement('div');
+                    description.textContent = project.description;
+
+                    projectElement.appendChild(title);
+                    projectElement.appendChild(description);
+                    terminalOutput.appendChild(projectElement);
+                });
+            }
+
+            function showSkills() {
+                addOutput('Skills:');
+
+                const skills = [
+                    { name: 'JavaScript', level: 95 },
+                    { name: 'React', level: 90 },
+                    { name: 'Node.js', level: 85 },
+                    { name: 'Python', level: 80 },
+                    { name: 'Docker', level: 75 },
+                    { name: 'SQL', level: 85 },
+                    { name: 'MongoDB', level: 80 },
+                    { name: 'AWS', level: 70 }
+                ];
+
+                skills.forEach(skill => {
+                    const skillContainer = document.createElement('div');
+                    skillContainer.className = 'progress-container fade-in';
+
+                    const skillName = document.createElement('div');
+                    skillName.textContent = skill.name;
+
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'progress-bar';
+
+                    const progressFill = document.createElement('div');
+                    progressFill.className = 'progress-fill';
+                    progressFill.style.width = `${skill.level}%`;
+
+                    const progressText = document.createElement('div');
+                    progressText.className = 'progress-text';
+                    progressText.textContent = `${skill.level}%`;
+
+                    progressBar.appendChild(progressFill);
+                    progressBar.appendChild(progressText);
+
+                    skillContainer.appendChild(skillName);
+                    skillContainer.appendChild(progressBar);
+
+                    terminalOutput.appendChild(skillContainer);
+
+                    setTimeout(() => {
+                        progressFill.style.width = `${skill.level}%`;
+                    }, 100);
+                });
+            }
+
+            function showProfile() {
+                addOutput('Profile Information:');
+                addOutput('Name: Akash Nanavati');
+                addOutput('Role: Full-Stack Developer');
+                addOutput('Location: Surat, Gujarat, India');
+                addOutput('Experience: 8+ years');
+                addOutput('Email: akashnanavati.dev@yahoo.com');
+                addOutput('GitHub: github.com/akashnanavati-dev');
+                addOutput('LinkedIn: linkedin.com/in/akashnanavati');
+            }
+
+            function showGitLog() {
+                addOutput('Recent commits:');
+
+                const commits = [
+                    { hash: 'a1b2c3d', message: 'Fix responsive layout issues on mobile' },
+                    { hash: 'e4f5g6h', message: 'Add dark mode toggle feature' },
+                    { hash: 'i7j8k9l', message: 'Implement real-time notifications' },
+                    { hash: 'm1n2o3p', message: 'Optimize database queries for better performance' },
+                    { hash: 'q4r5s6t', message: 'Integrate payment gateway API' },
+                    { hash: 'u7v8w9x', message: 'Add unit tests for core components' },
+                    { hash: 'y1z2a3b', message: 'Initial commit' }
+                ];
+
+                const logElement = document.createElement('div');
+                logElement.className = 'git-log';
+
+                commits.forEach(commit => {
+                    const commitLine = document.createElement('p');
+
+                    const hash = document.createElement('span');
+                    hash.className = 'git-hash';
+                    hash.textContent = commit.hash;
+
+                    commitLine.appendChild(hash);
+                    commitLine.appendChild(document.createTextNode(commit.message));
+
+                    logElement.appendChild(commitLine);
+                });
+
+                terminalOutput.appendChild(logElement);
+            }
+
+            function clearTerminal() {
+                while (terminalOutput.firstChild) {
+                    terminalOutput.removeChild(terminalOutput.firstChild);
+                }
+                addOutput('Terminal cleared.');
+            }
+
+            function showAccessDenied() {
+                addOutput('Access Denied: Nice try!', 'access-denied');
+
+                easterEggContent.innerHTML = `
+                    <h2 class="access-denied">ACCESS DENIED</h2>
+                    <p>Unauthorized system destruction attempt detected!</p>
+                    <p>This incident has been reported to the cyber police.</p>
+                `;
+                easterEggModal.style.display = 'flex';
+            }
+
+            function showPingResponse() {
+                addOutput('PING google.com (142.250.190.78): 56 data bytes', 'network-response');
+
+                setTimeout(() => {
+                    addOutput('64 bytes from 142.250.190.78: icmp_seq=0 ttl=57 time=14.252 ms', 'network-response');
+                }, 500);
+
+                setTimeout(() => {
+                    addOutput('64 bytes from 142.250.190.78: icmp_seq=1 ttl=57 time=15.874 ms', 'network-response');
+                }, 1000);
+
+                setTimeout(() => {
+                    addOutput('64 bytes from 142.250.190.78: icmp_seq=2 ttl=57 time=13.981 ms', 'network-response');
+                }, 1500);
+
+                setTimeout(() => {
+                    addOutput('64 bytes from 142.250.190.78: icmp_seq=3 ttl=57 time=14.563 ms', 'network-response');
+                }, 2000);
+
+                setTimeout(() => {
+                    addOutput('--- google.com ping statistics ---', 'network-response');
+                    addOutput('4 packets transmitted, 4 packets received, 0.0% packet loss', 'network-response ping-success');
+                    addOutput('round-trip min/avg/max/stddev = 13.981/14.668/15.874/0.782 ms', 'network-response');
+                }, 2500);
+            }
+
+            function showWhoami() {
+                const hackerAliases = [
+                    'NeoTheMatrix',
+                    'CyberPhantom',
+                    'CodeNinja',
+                    'HexHunter',
+                    'ByteMaster',
+                    'QuantumHacker',
+                    'ShadowByte',
+                    'CipherPunk'
+                ];
+
+                const randomAlias = hackerAliases[Math.floor(Math.random() * hackerAliases.length)];
+                addOutput(`You are: ${randomAlias}`, 'glitch');
+            }
+
+            function showMatrixEasterEgg() {
+                easterEggContent.innerHTML = `
+                    <h2>Welcome to the Matrix</h2>
+                    <p>The Matrix has you...</p>
+                    <p>Follow the white rabbit.</p>
+                    <canvas id="matrix-canvas" width="500" height="300"></canvas>
+                `;
+                easterEggModal.style.display = 'flex';
+
+                const canvas = document.getElementById('matrix-canvas');
+                const ctx = canvas.getContext('2d');
+
+                const characters = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+                const columns = canvas.width / 20;
+                const drops = [];
+
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = 1;
+                }
+
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.fillStyle = '#0f0';
+                    ctx.font = '15px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+                        ctx.fillText(text, i * 20, drops[i] * 20);
+
+                        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+
+                        drops[i]++;
+                    }
+                }
+
+                const matrixInterval = setInterval(drawMatrix, 50);
+
+                closeModal.addEventListener('click', () => {
+                    clearInterval(matrixInterval);
+                });
+            }
+
+            terminalInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    processCommand();
+                }
+            });
+
+            closeModal.addEventListener('click', function () {
+                easterEggModal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target === easterEggModal) {
+                    easterEggModal.style.display = 'none';
+                }
+            });
+
+            window.addEventListener('resize', function () {
+                const canvas = document.querySelector('.matrix-bg');
+                if (canvas) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+            });
+
+            initTerminal();
+        });
+    </script>
+</body>
+
+</html>
